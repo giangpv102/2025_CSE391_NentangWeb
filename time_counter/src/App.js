@@ -1,5 +1,5 @@
 import React from "react";
-import Time from "./components/time";
+import Time from "./components/pomodoro";
 
 function App(){
   return (
