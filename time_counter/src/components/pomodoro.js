@@ -1,9 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
-
+// Component 1: Pomodoro Timer 
 function PomodoroTimer() {
-  const workDuration = 20 * 60;   
-  const shortBreak = 5 * 60;        
-  const longBreak = 15 * 60;        
+  const workDuration = 20 * 60;
+  const shortBreak = 5 * 60;
+  const longBreak = 15 * 60;
 
   const [seconds, setSeconds] = useState(workDuration);
   const [isRunning, setIsRunning] = useState(false);
@@ -12,7 +12,6 @@ function PomodoroTimer() {
   const [log, setLog] = useState([]);
   const intervalRef = useRef(null);
 
-  // Chạy interval khi isRunning true
   useEffect(() => {
     if (isRunning && intervalRef.current === null) {
       intervalRef.current = setInterval(() => {
@@ -25,7 +24,6 @@ function PomodoroTimer() {
     };
   }, [isRunning]);
 
-  // Theo dõi seconds riêng, khi = 0 thì xử lý session end 1 lần duy nhất
   useEffect(() => {
     if (seconds === 0 && isRunning) {
       handleSessionEnd();
@@ -76,8 +74,7 @@ function PomodoroTimer() {
   };
 
   return (
-    <div style={{ backgroundColor: '#ed8e8b', fontFamily: 'sans-serif', textAlign: 'center' }}>
-      <h1>🍅 Pomodoro Timer</h1>
+    <div style={{  padding: '20px', borderRadius: '10px' }}>
       <h2>{sessionType} Session</h2>
       <h3 style={{ fontSize: '48px' }}>{formatTime(seconds)}</h3>
 
@@ -99,4 +96,69 @@ function PomodoroTimer() {
   );
 }
 
-export default PomodoroTimer;
+// Component 2: Stopwatch
+function Stopwatch() {
+  const [seconds, setSeconds] = useState(0);
+  const [isRunning, setIsRunning] = useState(false);
+  const intervalRef = useRef(null);
+
+  useEffect(() => {
+    if (isRunning && intervalRef.current === null) {
+      intervalRef.current = setInterval(() => {
+        setSeconds(prev => prev + 1);
+      }, 1000);
+    }
+
+    return () => {
+      clearInterval(intervalRef.current);
+      intervalRef.current = null;
+    };
+  }, [isRunning]);
+
+  const handleStart = () => setIsRunning(true);
+  const handlePause = () => setIsRunning(false);
+  const handleReset = () => {
+    clearInterval(intervalRef.current);
+    intervalRef.current = null;
+    setIsRunning(false);
+    setSeconds(0);
+  };
+
+  const formatTime = (totalSeconds) => {
+    const min = Math.floor(totalSeconds / 60).toString().padStart(2, '0');
+    const sec = (totalSeconds % 60).toString().padStart(2, '0');
+    return `${min}:${sec}`;
+  };
+
+  return (
+    <div style={{  padding: '20px', borderRadius: '10px' }}>
+      <h2>Stopwatch</h2>
+      <h3 style={{ fontSize: '48px' }}>{formatTime(seconds)}</h3>
+
+      <div style={{ marginBottom: '20px' }}>
+        <button onClick={handleStart} disabled={isRunning}>▶ Start</button>
+        <button onClick={handlePause} disabled={!isRunning}>⏸ Pause</button>
+        <button onClick={handleReset}>🔁 Reset</button>
+      </div>
+    </div>
+  );
+}
+function App() {
+  const [mode, setMode] = useState('pomodoro'); // 'pomodoro' | 'stopwatch'
+
+  return (
+    <div style={{ fontFamily: 'sans-serif', textAlign: 'center', padding: '20px' }}>
+      <h1 class="overlay-text">🕒Pomodoro & Stopwatch</h1>
+
+      
+      <div style={{ marginBottom: '20px' }}>
+        <button onClick={() => setMode('pomodoro')} disabled={mode === 'pomodoro'}>🍅 Pomodoro</button>
+        <button onClick={() => setMode('stopwatch')} disabled={mode === 'stopwatch'}>⏱ Stopwatch</button>
+      </div>
+
+      {mode === 'pomodoro' ? <PomodoroTimer /> : <Stopwatch />}
+    </div>
+  );
+}
+
+export default App;
